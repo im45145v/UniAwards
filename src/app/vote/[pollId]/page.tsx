@@ -55,7 +55,7 @@ export default async function VotePage({ params }: VotePageProps) {
       <Navbar user={dbUser as User} />
       <main className="mx-auto max-w-7xl px-4 py-8">
         <h1 className="mb-2 text-3xl font-bold">{poll.title}</h1>
-        <p className="mb-8 text-neutral-500">{poll.description}</p>
+        {poll.description && <p className="mb-8 text-neutral-500">{poll.description}</p>}
         <VotingGrid
           pollId={poll.id}
           nominations={(nominations || []) as Nomination[]}

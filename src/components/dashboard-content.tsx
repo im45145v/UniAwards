@@ -41,7 +41,7 @@ export function DashboardContent({ polls }: DashboardContentProps) {
                   {POLL_STATUS_LABELS[poll.status]}
                 </Badge>
               </div>
-              <CardDescription>{poll.description}</CardDescription>
+              {poll.description && <CardDescription>{poll.description}</CardDescription>}
             </CardHeader>
             <CardContent>
               <div className="flex gap-2">

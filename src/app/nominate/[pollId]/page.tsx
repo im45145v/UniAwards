@@ -40,7 +40,7 @@ export default async function NominatePage({ params }: NominatePageProps) {
       <Navbar user={dbUser as User} />
       <main className="mx-auto max-w-2xl px-4 py-8">
         <h1 className="mb-2 text-3xl font-bold">{poll.title}</h1>
-        <p className="mb-8 text-neutral-500">{poll.description}</p>
+        {poll.description && <p className="mb-8 text-neutral-500">{poll.description}</p>}
         <NominationForm pollId={poll.id} userId={authUser.id} />
       </main>
     </div>
