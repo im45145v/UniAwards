@@ -18,7 +18,7 @@ export async function GET(request: Request) {
       // Upsert user in the users table
       await supabase.from("users").upsert(
         { id: data.user.id, email, role },
-        { onConflict: "email" }
+        { onConflict: "id" }
       );
 
       return NextResponse.redirect(`${origin}/dashboard`);
