@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏆 UniAwards - University Yearbook Awards Platform
+
+A full-stack web application for university yearbook awards — featuring nomination, approval, voting, analytics, and an admin dashboard.
+
+## Tech Stack
+
+- **Frontend:** Next.js (App Router), TypeScript, TailwindCSS, ShadCN UI
+- **Backend:** Supabase (Postgres + Auth + Storage)
+- **Libraries:** Framer Motion (animations), Recharts (analytics charts)
 
 ## Getting Started
 
-First, run the development server:
+### 1. Clone & Install
+
+```bash
+git clone <repo-url>
+cd UniAwards
+npm install
+```
+
+### 2. Set Up Supabase
+
+1. Create a [Supabase](https://supabase.com) project
+2. Run the SQL schema from `supabase/schema.sql` in the Supabase SQL Editor
+3. Enable Google OAuth in **Authentication → Providers → Google**
+4. Create a storage bucket named `nominations` (set to public)
+5. Copy your project URL and anon key
+
+### 3. Configure Environment
+
+Create a `.env.local` file:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+### 4. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Authentication
+- Google OAuth via Supabase
+- Automatic role assignment based on email domain (`iimranchi.ac.in` → voter, otherwise → viewer)
 
-## Learn More
+### User Roles
+- **admin** — Full access to admin dashboard
+- **voter** — Can vote in polls
+- **viewer** — Can browse polls and leaderboards
 
-To learn more about Next.js, take a look at the following resources:
+### Pages
+- **Login** — Google sign-in
+- **Dashboard** — Browse polls with status badges and action buttons
+- **Nominate** — Submit nominations with optional image upload
+- **Vote** — Cast votes on approved nominees (one vote per poll)
+- **Leaderboard** — View results with charts and animated progress bars
+- **Admin Dashboard** — Manage polls, moderate nominations, control users, toggle voting, view analytics
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Database Schema
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+See `supabase/schema.sql` for the complete schema including:
+- `users` — id, email, role
+- `polls` — id, title, description, status
+- `nominations` — id, poll_id, nominee_name, image_url, approved
+- `votes` — id, poll_id, nomination_id, user_id (UNIQUE constraint on user_id + poll_id)
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├── app/
+│   ├── admin/          # Admin dashboard pages
+│   ├── auth/callback/  # OAuth callback handler
+│   ├── dashboard/      # Main dashboard
+│   ├── leaderboard/    # Results & rankings
+│   ├── login/          # Login page
+│   ├── nominate/       # Nomination form
+│   └── vote/           # Voting UI
+├── components/
+│   ├── admin/          # Admin-specific components
+│   ├── layout/         # Navbar, sidebar
+│   └── ui/             # ShadCN UI components
+└── lib/
+    ├── supabase/       # Supabase client setup
+    ├── constants.ts    # App constants
+    ├── types.ts        # TypeScript types
+    └── utils.ts        # Utility functions
+```

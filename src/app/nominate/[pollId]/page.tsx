@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Navbar } from "@/components/layout/navbar";
 import { NominationForm } from "@/components/nomination-form";
-import type { User, Poll } from "@/lib/types";
+import type { User } from "@/lib/types";
 
 interface NominatePageProps {
   params: Promise<{ pollId: string }>;
