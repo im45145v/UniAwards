@@ -21,7 +21,7 @@ npm install
 ### 2. Set Up Supabase
 
 1. Create a [Supabase](https://supabase.com) project
-2. Run the SQL schema from `supabase/schema.sql` in the Supabase SQL Editor
+2. Run the SQL setup from `supabase/setup.sql` in the Supabase SQL Editor
 3. Enable **Email Auth** in **Authentication → Providers → Email**
    - Disable "Confirm email" (for faster testing)
    - Enable "Email OTP"
@@ -66,9 +66,9 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Database Schema
 
-See `supabase/schema.sql` for the complete schema including:
+See `supabase/setup.sql` for the complete schema and policies including:
 - `users` — id, email, role
-- `polls` — id, title, description, status
+- `polls` — id, title, description, status, ends_at
 - `nominations` — id, poll_id, nominee_name, image_url, approved
 - `votes` — id, poll_id, nomination_id, user_id (UNIQUE constraint on user_id + poll_id)
 

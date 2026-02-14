@@ -20,6 +20,13 @@ export default async function DashboardPage() {
     .eq("id", authUser.id)
     .single();
 
+  const now = new Date().toISOString();
+  await supabase
+    .from("polls")
+    .update({ status: "VOTING_CLOSED" })
+    .eq("status", "VOTING_OPEN")
+    .lt("ends_at", now);
+
   const { data: polls } = await supabase
     .from("polls")
     .select("*")
