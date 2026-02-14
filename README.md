@@ -22,7 +22,9 @@ npm install
 
 1. Create a [Supabase](https://supabase.com) project
 2. Run the SQL schema from `supabase/schema.sql` in the Supabase SQL Editor
-3. Enable Google OAuth in **Authentication → Providers → Google**
+3. Enable **Email Auth** in **Authentication → Providers → Email**
+   - Disable "Confirm email" (for faster testing)
+   - Enable "Email OTP"
 4. Create a storage bucket named `nominations` (set to public)
 5. Copy your project URL and anon key
 
@@ -46,8 +48,8 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Features
 
 ### Authentication
-- Google OAuth via Supabase
-- Automatic role assignment based on email domain (`iimranchi.ac.in` → voter, otherwise → viewer)
+- Email OTP code verification via Supabase
+- Default role assignment to voter
 
 ### User Roles
 - **admin** — Full access to admin dashboard
@@ -55,7 +57,7 @@ Open [http://localhost:3000](http://localhost:3000).
 - **viewer** — Can browse polls and leaderboards
 
 ### Pages
-- **Login** — Google sign-in
+- **Login** — Email OTP code sign-in (6-digit code)
 - **Dashboard** — Browse polls with status badges and action buttons
 - **Nominate** — Submit nominations with optional image upload
 - **Vote** — Cast votes on approved nominees (one vote per poll)
