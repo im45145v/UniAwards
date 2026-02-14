@@ -19,16 +19,20 @@ export function VotingControl({ initialPolls }: VotingControlProps) {
   const router = useRouter();
   const [polls, setPolls] = useState(initialPolls);
   const [loading, setLoading] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const updateStatus = async (pollId: string, status: string) => {
     setLoading(pollId);
+    setError(null);
 
-    const { error } = await supabase
+    const { error: updateError } = await supabase
       .from("polls")
       .update({ status })
       .eq("id", pollId);
 
-    if (!error) {
+    if (updateError) {
+      setError(`Failed to update poll status: ${updateError.message}`);
+    } else {
       setPolls(polls.map((p) => (p.id === pollId ? { ...p, status: status as Poll["status"] } : p)));
       router.refresh();
     }
@@ -37,6 +41,11 @@ export function VotingControl({ initialPolls }: VotingControlProps) {
 
   return (
     <div className="space-y-4">
+      {error && (
+        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">
+          {error}
+        </div>
+      )}
       {polls.length === 0 && (
         <p className="py-12 text-center text-neutral-400">No polls available.</p>
       )}

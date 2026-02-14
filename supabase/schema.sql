@@ -44,5 +44,104 @@ CREATE INDEX idx_votes_poll_id ON votes(poll_id);
 CREATE INDEX idx_votes_nomination_id ON votes(nomination_id);
 CREATE INDEX idx_votes_user_id ON votes(user_id);
 
+-- =============================================
+-- Row Level Security (RLS) Policies
+-- =============================================
+
+-- Enable RLS on all tables
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE polls ENABLE ROW LEVEL SECURITY;
+ALTER TABLE nominations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE votes ENABLE ROW LEVEL SECURITY;
+
+-- Helper function to check if user is admin
+CREATE OR REPLACE FUNCTION is_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM users 
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- USERS TABLE POLICIES
+CREATE POLICY "users_select_own" ON users
+  FOR SELECT TO authenticated
+  USING (id = auth.uid() OR is_admin());
+
+CREATE POLICY "users_insert_own" ON users
+  FOR INSERT TO authenticated
+  WITH CHECK (id = auth.uid());
+
+CREATE POLICY "users_update_own" ON users
+  FOR UPDATE TO authenticated
+  USING (id = auth.uid());
+
+CREATE POLICY "users_admin_select_all" ON users
+  FOR SELECT TO authenticated
+  USING (is_admin());
+
+CREATE POLICY "users_admin_update_all" ON users
+  FOR UPDATE TO authenticated
+  USING (is_admin());
+
+-- POLLS TABLE POLICIES
+CREATE POLICY "polls_select_all" ON polls
+  FOR SELECT TO authenticated
+  USING (true);
+
+CREATE POLICY "polls_admin_insert" ON polls
+  FOR INSERT TO authenticated
+  WITH CHECK (is_admin());
+
+CREATE POLICY "polls_admin_update" ON polls
+  FOR UPDATE TO authenticated
+  USING (is_admin());
+
+CREATE POLICY "polls_admin_delete" ON polls
+  FOR DELETE TO authenticated
+  USING (is_admin());
+
+-- NOMINATIONS TABLE POLICIES
+CREATE POLICY "nominations_select_all" ON nominations
+  FOR SELECT TO authenticated
+  USING (true);
+
+CREATE POLICY "nominations_insert_own" ON nominations
+  FOR INSERT TO authenticated
+  WITH CHECK (nominated_by_user_id = auth.uid());
+
+CREATE POLICY "nominations_admin_update" ON nominations
+  FOR UPDATE TO authenticated
+  USING (is_admin());
+
+CREATE POLICY "nominations_admin_delete" ON nominations
+  FOR DELETE TO authenticated
+  USING (is_admin());
+
+-- VOTES TABLE POLICIES
+CREATE POLICY "votes_select_own" ON votes
+  FOR SELECT TO authenticated
+  USING (user_id = auth.uid() OR is_admin());
+
+CREATE POLICY "votes_insert_own" ON votes
+  FOR INSERT TO authenticated
+  WITH CHECK (user_id = auth.uid());
+
+-- =============================================
+-- Storage Policies for 'nominations' bucket
+-- =============================================
+-- Run these in Supabase dashboard after creating the bucket:
+--
+-- INSERT policy (authenticated users can upload):
+-- CREATE POLICY "nominations_upload" ON storage.objects
+--   FOR INSERT TO authenticated
+--   WITH CHECK (bucket_id = 'nominations');
+--
+-- SELECT policy (anyone can view):
+-- CREATE POLICY "nominations_public_read" ON storage.objects
+--   FOR SELECT USING (bucket_id = 'nominations');
+
 -- Storage bucket for nomination images
 -- Run in Supabase dashboard: CREATE BUCKET 'nominations' (public);

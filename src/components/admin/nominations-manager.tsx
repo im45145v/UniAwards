@@ -19,28 +19,42 @@ export function NominationsManager({ initialNominations }: NominationsManagerPro
   const supabase = createClient();
   const router = useRouter();
   const [nominations, setNominations] = useState(initialNominations);
+  const [loading, setLoading] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleApproval = async (id: string, approved: boolean) => {
-    const { error } = await supabase
+    setLoading(id);
+    setError(null);
+    
+    const { error: updateError } = await supabase
       .from("nominations")
       .update({ approved })
       .eq("id", id);
 
-    if (!error) {
+    if (updateError) {
+      setError(`Failed to ${approved ? "approve" : "reject"} nomination: ${updateError.message}`);
+    } else {
       setNominations(
         nominations.map((n) => (n.id === id ? { ...n, approved } : n))
       );
       router.refresh();
     }
+    setLoading(null);
   };
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {nominations.length === 0 && (
-        <p className="col-span-full py-12 text-center text-neutral-400">
-          No nominations yet.
-        </p>
+    <div className="space-y-4">
+      {error && (
+        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">
+          {error}
+        </div>
       )}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {nominations.length === 0 && (
+          <p className="col-span-full py-12 text-center text-neutral-400">
+            No nominations yet.
+          </p>
+        )}
       {nominations.map((nomination, index) => (
         <motion.div
           key={nomination.id}
@@ -74,27 +88,28 @@ export function NominationsManager({ initialNominations }: NominationsManagerPro
                 <Button
                   size="sm"
                   onClick={() => handleApproval(nomination.id, true)}
-                  disabled={nomination.approved}
+                  disabled={nomination.approved || loading === nomination.id}
                   className="flex-1"
                 >
                   <Check className="mr-1 h-4 w-4" />
-                  Approve
+                  {loading === nomination.id ? "..." : "Approve"}
                 </Button>
                 <Button
                   size="sm"
                   variant="destructive"
                   onClick={() => handleApproval(nomination.id, false)}
-                  disabled={!nomination.approved}
+                  disabled={!nomination.approved || loading === nomination.id}
                   className="flex-1"
                 >
                   <X className="mr-1 h-4 w-4" />
-                  Reject
+                  {loading === nomination.id ? "..." : "Reject"}
                 </Button>
               </div>
             </CardContent>
           </Card>
         </motion.div>
       ))}
+      </div>
     </div>
   );
 }

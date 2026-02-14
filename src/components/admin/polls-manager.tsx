@@ -28,18 +28,22 @@ export function PollsManager({ initialPolls }: PollsManagerProps) {
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<PollStatus>("NOMINATION_OPEN");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleCreate = async () => {
     if (!title.trim()) return;
     setLoading(true);
+    setError(null);
 
-    const { data, error } = await supabase
+    const { data, error: createError } = await supabase
       .from("polls")
       .insert({ title: title.trim(), description: description.trim(), status })
       .select()
       .single();
 
-    if (!error && data) {
+    if (createError) {
+      setError(`Failed to create poll: ${createError.message}`);
+    } else if (data) {
       setPolls([data as Poll, ...polls]);
       setTitle("");
       setDescription("");
@@ -58,13 +62,16 @@ export function PollsManager({ initialPolls }: PollsManagerProps) {
 
   const handleUpdate = async (pollId: string) => {
     setLoading(true);
+    setError(null);
 
-    const { error } = await supabase
+    const { error: updateError } = await supabase
       .from("polls")
       .update({ title: title.trim(), description: description.trim(), status })
       .eq("id", pollId);
 
-    if (!error) {
+    if (updateError) {
+      setError(`Failed to update poll: ${updateError.message}`);
+    } else {
       setPolls(
         polls.map((p) =>
           p.id === pollId
@@ -80,6 +87,11 @@ export function PollsManager({ initialPolls }: PollsManagerProps) {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">
+          {error}
+        </div>
+      )}
       <div className="flex justify-end">
         <Button onClick={() => setShowCreate(!showCreate)}>
           <Plus className="mr-1 h-4 w-4" />

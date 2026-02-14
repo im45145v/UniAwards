@@ -70,12 +70,22 @@ export default function LoginPage() {
       setMessage(error.message);
       setIsSending(false);
     } else if (data.user) {
-      // User is authenticated, upsert to users table
+      // User is authenticated, check if user exists first
       const userEmail = data.user.email || "";
-      await supabase.from("users").upsert(
-        { id: data.user.id, email: userEmail, role: "voter" },
-        { onConflict: "id" }
-      );
+      const { data: existingUser } = await supabase
+        .from("users")
+        .select("id")
+        .eq("id", data.user.id)
+        .maybeSingle();
+      
+      // Only insert if user doesn't exist (don't overwrite existing role)
+      if (!existingUser) {
+        await supabase.from("users").insert({
+          id: data.user.id,
+          email: userEmail,
+          role: "voter",
+        });
+      }
       router.push("/dashboard");
     }
   };

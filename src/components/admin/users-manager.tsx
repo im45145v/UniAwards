@@ -23,24 +23,37 @@ export function UsersManager({ initialUsers }: UsersManagerProps) {
   const supabase = createClient();
   const [users, setUsers] = useState(initialUsers);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const filteredUsers = users.filter((u) =>
     u.email.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
-    const { error } = await supabase
+    setLoading(userId);
+    setError(null);
+    
+    const { error: updateError } = await supabase
       .from("users")
       .update({ role: newRole })
       .eq("id", userId);
 
-    if (!error) {
+    if (updateError) {
+      setError(`Failed to update user role: ${updateError.message}`);
+    } else {
       setUsers(users.map((u) => (u.id === userId ? { ...u, role: newRole } : u)));
     }
+    setLoading(null);
   };
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">
+          {error}
+        </div>
+      )}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
         <Input
@@ -77,6 +90,7 @@ export function UsersManager({ initialUsers }: UsersManagerProps) {
                   value={user.role}
                   onChange={(e) => handleRoleChange(user.id, e.target.value as UserRole)}
                   className="w-32"
+                  disabled={loading === user.id}
                 >
                   <option value="viewer">Viewer</option>
                   <option value="voter">Voter</option>
