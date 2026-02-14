@@ -16,13 +16,15 @@ const buildQueryString = (params: SearchParams | undefined) => {
   return searchParams.toString();
 };
 
-export default function Home({
+export default async function Home({
   searchParams,
 }: {
-  searchParams?: SearchParams;
+  searchParams?: Promise<SearchParams>;
 }) {
-  if (searchParams && "code" in searchParams) {
-    const query = buildQueryString(searchParams);
+  const params = await searchParams;
+  
+  if (params && "code" in params) {
+    const query = buildQueryString(params);
     redirect(query ? `/auth/callback?${query}` : "/auth/callback");
   }
 

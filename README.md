@@ -45,6 +45,10 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+## Deployment
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for complete deployment guide to Vercel.
+
 ## Features
 
 ### Authentication

@@ -74,8 +74,8 @@ export function AnalyticsDashboard({
             <CardTitle>Votes per Poll</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-80 w-full">
+              <ResponsiveContainer width="100%" height={320}>
                 <BarChart data={votesPerPoll}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" fontSize={12} />
