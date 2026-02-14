@@ -18,6 +18,7 @@ export interface Poll {
   title: string;
   description: string | null;
   status: PollStatus;
+  ends_at: string | null;
   created_at: string;
 }
 

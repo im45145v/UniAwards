@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Navbar } from "@/components/layout/navbar";
 import { VotingGrid } from "@/components/voting-grid";
-import type { User, Nomination } from "@/lib/types";
+import { LiveResults } from "@/components/live-results";
+import type { User, NominationWithVotes } from "@/lib/types";
 
 interface VotePageProps {
   params: Promise<{ pollId: string }>;
@@ -42,6 +43,22 @@ export default async function VotePage({ params }: VotePageProps) {
     .eq("approved", true)
     .order("created_at");
 
+  // Get vote counts for each nomination
+  const { data: votes } = await supabase
+    .from("votes")
+    .select("nomination_id")
+    .eq("poll_id", pollId);
+
+  const voteCounts: Record<string, number> = {};
+  (votes || []).forEach((v) => {
+    voteCounts[v.nomination_id] = (voteCounts[v.nomination_id] || 0) + 1;
+  });
+
+  const nominationsWithVotes: NominationWithVotes[] = (nominations || []).map((n) => ({
+    ...n,
+    vote_count: voteCounts[n.id] || 0,
+  }));
+
   // Check if user already voted
   const { data: existingVote } = await supabase
     .from("votes")
@@ -51,18 +68,37 @@ export default async function VotePage({ params }: VotePageProps) {
     .maybeSingle();
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-neutral-100">
       <Navbar user={dbUser as User} />
       <main className="mx-auto max-w-7xl px-4 py-8">
-        <h1 className="mb-2 text-3xl font-bold">{poll.title}</h1>
-        {poll.description && <p className="mb-8 text-neutral-500">{poll.description}</p>}
-        <VotingGrid
-          pollId={poll.id}
-          nominations={(nominations || []) as Nomination[]}
-          userId={authUser.id}
-          userRole={(dbUser as User)?.role || "viewer"}
-          hasVoted={!!existingVote}
-        />
+        <div className="mb-8">
+          <h1 className="text-4xl font-black tracking-tight text-neutral-900">{poll.title}</h1>
+          {poll.description && (
+            <p className="mt-2 text-lg text-neutral-600">{poll.description}</p>
+          )}
+        </div>
+        
+        <div className="grid gap-8 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <VotingGrid
+              pollId={poll.id}
+              nominations={nominationsWithVotes}
+              userId={authUser.id}
+              userRole={(dbUser as User)?.role || "viewer"}
+              hasVoted={!!existingVote}
+              endsAt={poll.ends_at}
+            />
+          </div>
+          <div className="lg:col-span-1">
+            <div className="sticky top-8">
+              <LiveResults
+                pollId={poll.id}
+                initialNominations={nominationsWithVotes}
+                endsAt={poll.ends_at}
+              />
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   );
