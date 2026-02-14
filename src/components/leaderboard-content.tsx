@@ -42,8 +42,8 @@ export function LeaderboardContent({ nominations }: LeaderboardContentProps) {
       <Card>
         <CardContent className="p-6">
           <h2 className="mb-4 text-lg font-semibold">Vote Distribution</h2>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-80 w-full">
+            <ResponsiveContainer width="100%" height={320}>
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" fontSize={12} />

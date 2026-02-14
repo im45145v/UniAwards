@@ -26,23 +26,29 @@ export default function LoginPage() {
       return;
     }
 
-    const supabase = createClient();
     setIsSending(true);
     setMessage(null);
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email: trimmedEmail,
-      options: {
-        shouldCreateUser: true,
-      },
-    });
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOtp({
+        email: trimmedEmail,
+        options: {
+          shouldCreateUser: true,
+        },
+      });
 
-    if (error) {
-      setMessage(error.message);
-      setIsSending(false);
-    } else {
-      setStep("otp");
-      setMessage("Check your email for the 6-digit code.");
+      if (error) {
+        console.error("OTP Error:", error);
+        setMessage(error.message);
+      } else {
+        setStep("otp");
+        setMessage("Check your email for the 6-digit code.");
+      }
+    } catch (err) {
+      console.error("Send OTP failed:", err);
+      setMessage("Failed to send verification code. Please try again.");
+    } finally {
       setIsSending(false);
     }
   };
@@ -56,37 +62,44 @@ export default function LoginPage() {
       return;
     }
 
-    const supabase = createClient();
     setIsSending(true);
     setMessage(null);
 
-    const { data, error } = await supabase.auth.verifyOtp({
-      email,
-      token: trimmedOtp,
-      type: "email",
-    });
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.verifyOtp({
+        email,
+        token: trimmedOtp,
+        type: "email",
+      });
 
-    if (error) {
-      setMessage(error.message);
-      setIsSending(false);
-    } else if (data.user) {
-      // User is authenticated, check if user exists first
-      const userEmail = data.user.email || "";
-      const { data: existingUser } = await supabase
-        .from("users")
-        .select("id")
-        .eq("id", data.user.id)
-        .maybeSingle();
-      
-      // Only insert if user doesn't exist (don't overwrite existing role)
-      if (!existingUser) {
-        await supabase.from("users").insert({
-          id: data.user.id,
-          email: userEmail,
-          role: "voter",
-        });
+      if (error) {
+        console.error("Verify OTP Error:", error);
+        setMessage(error.message);
+      } else if (data.user) {
+        // User is authenticated, check if user exists first
+        const userEmail = data.user.email || "";
+        const { data: existingUser } = await supabase
+          .from("users")
+          .select("id")
+          .eq("id", data.user.id)
+          .maybeSingle();
+        
+        // Only insert if user doesn't exist (don't overwrite existing role)
+        if (!existingUser) {
+          await supabase.from("users").insert({
+            id: data.user.id,
+            email: userEmail,
+            role: "voter",
+          });
+        }
+        router.push("/dashboard");
       }
-      router.push("/dashboard");
+    } catch (err) {
+      console.error("Verify OTP failed:", err);
+      setMessage("Verification failed. Please try again.");
+    } finally {
+      setIsSending(false);
     }
   };
 
