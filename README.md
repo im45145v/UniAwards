@@ -65,7 +65,8 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for complete deployment guide to Vercel.
 - **Dashboard** — Browse polls with status badges and action buttons
 - **Nominate** — Submit nominations with optional image upload
 - **Vote** — Cast votes on approved nominees (one vote per poll)
-- **Leaderboard** — View results with charts and animated progress bars
+- **Public Leaderboard** — Public page showing live results for all polls (no login required)
+- **Leaderboard** — View individual poll results with charts and animated progress bars
 - **Admin Dashboard** — Manage polls, moderate nominations, control users, toggle voting, view analytics
 
 ## Database Schema
@@ -84,7 +85,7 @@ src/
 │   ├── admin/          # Admin dashboard pages
 │   ├── auth/callback/  # OAuth callback handler
 │   ├── dashboard/      # Main dashboard
-│   ├── leaderboard/    # Results & rankings
+│   ├── leaderboard/    # Public leaderboard & individual results
 │   ├── login/          # Login page
 │   ├── nominate/       # Nomination form
 │   └── vote/           # Voting UI
@@ -98,3 +99,14 @@ src/
     ├── types.ts        # TypeScript types
     └── utils.ts        # Utility functions
 ```
+
+## Public Leaderboard
+
+The application includes a public leaderboard page (`/leaderboard`) that displays live results for all polls without requiring authentication. This allows anyone to view:
+
+- All active and completed polls
+- Real-time vote counts and rankings
+- Top 3 nominees for each poll (collapsed view)
+- Full leaderboard with animated progress bars (expanded view)
+
+For more details on the public leaderboard feature, see [PUBLIC_LEADERBOARD.md](PUBLIC_LEADERBOARD.md).
