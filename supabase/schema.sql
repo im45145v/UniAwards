@@ -88,8 +88,9 @@ CREATE POLICY "users_admin_update_all" ON users
   USING (is_admin());
 
 -- POLLS TABLE POLICIES
-CREATE POLICY "polls_select_all" ON polls
-  FOR SELECT TO authenticated
+-- Public read access for leaderboard
+CREATE POLICY "polls_select_public" ON polls
+  FOR SELECT TO anon, authenticated
   USING (true);
 
 CREATE POLICY "polls_admin_insert" ON polls
@@ -105,9 +106,10 @@ CREATE POLICY "polls_admin_delete" ON polls
   USING (is_admin());
 
 -- NOMINATIONS TABLE POLICIES
-CREATE POLICY "nominations_select_all" ON nominations
-  FOR SELECT TO authenticated
-  USING (true);
+-- Public read access for approved nominations in leaderboard
+CREATE POLICY "nominations_select_public" ON nominations
+  FOR SELECT TO anon, authenticated
+  USING (approved = true);
 
 CREATE POLICY "nominations_insert_own" ON nominations
   FOR INSERT TO authenticated
@@ -122,8 +124,9 @@ CREATE POLICY "nominations_admin_delete" ON nominations
   USING (is_admin());
 
 -- VOTES TABLE POLICIES
-CREATE POLICY "votes_select_all" ON votes
-  FOR SELECT TO authenticated
+-- Public read access for leaderboard
+CREATE POLICY "votes_select_public" ON votes
+  FOR SELECT TO anon, authenticated
   USING (true);
 
 CREATE POLICY "votes_insert_own" ON votes

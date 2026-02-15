@@ -22,11 +22,14 @@ npm install
 
 1. Create a [Supabase](https://supabase.com) project
 2. Run the SQL setup from `supabase/setup.sql` in the Supabase SQL Editor
-3. Enable **Email Auth** in **Authentication → Providers → Email**
+3. **For existing databases:** Run the migration from `supabase/migration_public_leaderboard.sql` to enable public leaderboard access
+4. Enable **Email Auth** in **Authentication → Providers → Email**
    - Disable "Confirm email" (for faster testing)
    - Enable "Email OTP"
-4. Create a storage bucket named `nominations` (set to public)
-5. Copy your project URL and anon key
+5. Create a storage bucket named `nominations` (set to public)
+6. Copy your project URL and anon key
+
+> **⚠️ Important:** The public leaderboard requires the migration script to be run. This enables anonymous read access to polls, approved nominations, and votes.
 
 ### 3. Configure Environment
 
@@ -54,19 +57,21 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for complete deployment guide to Vercel.
 ### Authentication
 - Email OTP code verification via Supabase
 - Default role assignment to voter
+- **Email allowlist** — Admin-configurable regex patterns to restrict access to specific email domains (e.g., only university students)
 
 ### User Roles
-- **admin** — Full access to admin dashboard
+- **admin** — Full access to admin dashboard (including email allowlist settings)
 - **voter** — Can vote in polls
 - **viewer** — Can browse polls and leaderboards
 
 ### Pages
-- **Login** — Email OTP code sign-in (6-digit code)
+- **Login** — Email OTP code sign-in (6-digit code) with allowlist validation
 - **Dashboard** — Browse polls with status badges and action buttons
 - **Nominate** — Submit nominations with optional image upload
 - **Vote** — Cast votes on approved nominees (one vote per poll)
-- **Leaderboard** — View results with charts and animated progress bars
-- **Admin Dashboard** — Manage polls, moderate nominations, control users, toggle voting, view analytics
+- **Public Leaderboard** — Public page showing live results for all polls (no login required)
+- **Leaderboard** — View individual poll results with charts and animated progress bars
+- **Admin Dashboard** — Manage polls, moderate nominations, control users, toggle voting, view analytics, configure email allowlist
 
 ## Database Schema
 
@@ -84,7 +89,7 @@ src/
 │   ├── admin/          # Admin dashboard pages
 │   ├── auth/callback/  # OAuth callback handler
 │   ├── dashboard/      # Main dashboard
-│   ├── leaderboard/    # Results & rankings
+│   ├── leaderboard/    # Public leaderboard & individual results
 │   ├── login/          # Login page
 │   ├── nominate/       # Nomination form
 │   └── vote/           # Voting UI
@@ -98,3 +103,16 @@ src/
     ├── types.ts        # TypeScript types
     └── utils.ts        # Utility functions
 ```
+
+## Public Leaderboard (Default Page)
+
+When you open the app at the base URL, you'll see the **public leaderboard** page that displays live results for all polls without requiring authentication. 
+
+**Features:**
+- View all active and completed polls
+- Real-time vote counts and rankings
+- Top 3 nominees for each poll (collapsed view)
+- Full leaderboard with animated progress bars (expanded view)
+- No login required - completely public access
+
+For more details on the public leaderboard feature and migration steps, see [PUBLIC_LEADERBOARD.md](PUBLIC_LEADERBOARD.md).

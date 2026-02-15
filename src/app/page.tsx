@@ -28,5 +28,5 @@ export default async function Home({
     redirect(query ? `/auth/callback?${query}` : "/auth/callback");
   }
 
-  redirect("/login");
+  redirect("/leaderboard");
 }
