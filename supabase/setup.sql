@@ -79,7 +79,7 @@ CREATE POLICY "users_update_own" ON users
 
 -- Polls
 CREATE POLICY "polls_select_all" ON polls
-  FOR SELECT TO authenticated
+  FOR SELECT TO anon, authenticated
   USING (true);
 
 CREATE POLICY "polls_admin_insert" ON polls
@@ -96,8 +96,8 @@ CREATE POLICY "polls_admin_delete" ON polls
 
 -- Nominations
 CREATE POLICY "nominations_select_all" ON nominations
-  FOR SELECT TO authenticated
-  USING (true);
+  FOR SELECT TO anon, authenticated
+  USING (approved = true);
 
 CREATE POLICY "nominations_insert_own" ON nominations
   FOR INSERT TO authenticated
@@ -113,7 +113,7 @@ CREATE POLICY "nominations_admin_delete" ON nominations
 
 -- Votes
 CREATE POLICY "votes_select_all" ON votes
-  FOR SELECT TO authenticated
+  FOR SELECT TO anon, authenticated
   USING (true);
 
 CREATE POLICY "votes_insert_own" ON votes

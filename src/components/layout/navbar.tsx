@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, LayoutDashboard, Shield } from "lucide-react";
+import { LogOut, LayoutDashboard, Shield, Trophy } from "lucide-react";
 import type { User } from "@/lib/types";
 
 interface NavbarProps {
@@ -27,6 +27,12 @@ export function Navbar({ user }: NavbarProps) {
           🏆 UniAwards
         </Link>
         <div className="flex items-center gap-3">
+          <Link href="/leaderboard">
+            <Button variant="ghost" size="sm">
+              <Trophy className="mr-1 h-4 w-4" />
+              Leaderboard
+            </Button>
+          </Link>
           <Link href="/dashboard">
             <Button variant="ghost" size="sm">
               <LayoutDashboard className="mr-1 h-4 w-4" />
