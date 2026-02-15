@@ -181,8 +181,9 @@ export function PublicLeaderboardContent({ polls }: PublicLeaderboardContentProp
                                     />
                                   </div>
                                   <span className="shrink-0 text-sm text-neutral-500">
-                                    {nomination.vote_count} votes (
-                                    {percentage.toFixed(1)}%)
+                                    {nomination.vote_count}{" "}
+                                    {nomination.vote_count === 1 ? "vote" : "votes"}
+                                    {poll.totalVotes > 0 && ` (${percentage.toFixed(1)}%)`}
                                   </span>
                                 </div>
                               </div>

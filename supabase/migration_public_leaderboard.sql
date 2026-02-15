@@ -2,6 +2,11 @@
 -- This allows anonymous users to view polls, nominations, and votes
 -- Run this in Supabase SQL Editor
 
+-- Drop existing policies that we'll be replacing
+DROP POLICY IF EXISTS "polls_select_all" ON polls;
+DROP POLICY IF EXISTS "nominations_select_all" ON nominations;
+DROP POLICY IF EXISTS "votes_select_all" ON votes;
+
 -- Add public SELECT policy for polls
 CREATE POLICY "polls_select_public" ON polls
   FOR SELECT TO anon, authenticated
